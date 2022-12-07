@@ -38,7 +38,9 @@ should log the user out and show the LoginFragment. This click is handled in the
   There is 1 Main Activity and 3 known Fragments - Login Fragment, Dashboard Fragment and Game Fragment.
 
 - **Known Bugs**
-  On back pressed for forfeit results in crashing of the application for that user. I am getting "Fragment not attached to context" issue. I tried finding fixes for it but it didn't work work.'
+
+  On back pressed for forfeit results does not update Wins and Losses. I tried to implement that feature but the app was crashing for some reason for that person, althought the wins and losses were getting updated in database and for other player. I felt crashing might be a bigger issue hence I commented the code that handled that. The app crashed with a "Fragment not attached to context" issue. I tried finding fixes for it but it didn't work work.
+  
   Although there are no other known bugs in the application, I could not resolve some accessibility scanner issues of the Menu Bar. Below are some screenshots of the application.
 
   ![sdpd-b.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpd-b.jpeg)
