@@ -60,6 +60,7 @@ public class GameFragment extends Fragment {
     gameRef = mDatabase.getReference("Game_Info");
     userRef = mDatabase.getReference("User_Info");
     back =  false;
+
     // active and inactive are initialized this way because of the way the theme works
     // copied from stackoverflow {link @https://stackoverflow.com/questions/35417329/gettheme-resolveattribute-alternative-on-pre-lollipop}
     TypedValue typedValue1 = new TypedValue();
@@ -109,7 +110,7 @@ public class GameFragment extends Fragment {
             .setMessage(R.string.forfeit_game_dialog_message)
             .setPositiveButton(R.string.yes, (d, which) -> {
               // TODO update loss count
-              endGameAsForfeit();
+//              endGameAsForfeit();
               mNavController.popBackStack();
             })
             .setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
@@ -383,8 +384,6 @@ public class GameFragment extends Fragment {
     gamePlayer1.setText("Player 1");
 
     String player2display = "";
-    Activity activity = getActivity();
-    if(activity == null) return;
     if(mLogic.player2.equals(getString(R.string.computer)) || mLogic.player2.equals(getString(R.string.waiting))){
       player2display = mLogic.player2;
     }else player2display = "Player 2";
@@ -452,6 +451,7 @@ public class GameFragment extends Fragment {
     );
   }
 
+//  used this function for onBackPressed but some issues
   private void endGameAsForfeit(){
     back = true;
     if(mLogic.status.equals(getString(R.string.status_waiting))){
@@ -460,6 +460,7 @@ public class GameFragment extends Fragment {
       updateDbEntryOnGameEnd("Player2");
     }else updateDbEntryOnGameEnd("Player1");
   }
+
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
