@@ -38,11 +38,12 @@ should log the user out and show the LoginFragment. This click is handled in the
   There is 1 Main Activity and 3 known Fragments - Login Fragment, Dashboard Fragment and Game Fragment.
 
 - **Known Bugs**
-
-  Although there are no specific bugs in the application, I could not resolve some accessibility scanner issues of the Menu Bar. Below are some screenshots of the application.
+  On back pressed for forfeit results in crashing of the application for that user. I am getting "Fragment not attached to context" issue. I tried finding fixes for it but it didn't work work.'
+  Although there are no other known bugs in the application, I could not resolve some accessibility scanner issues of the Menu Bar. Below are some screenshots of the application.
 
   ![sdpd-b.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpd-b.jpeg)
 
+![sdpd=2.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpd2.jpeg)
 
 ![sdpd-a.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpd-a.jpeg)
 
@@ -104,6 +105,8 @@ should log the user out and show the LoginFragment. This click is handled in the
 - I ran the monkey tool successfully for 2500, 5000, and 10000 iterations. The app did not crash on any run.
 
 ## Hosting the App
+
+App is hosted on firebase and uses realtime database. To run the app simply clone the repo and run using android studio.
 
 ## Time taken
 
