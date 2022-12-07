@@ -24,4 +24,14 @@
   <string name="yes">Yes</string>
   <string name="cancel">Cancel</string>
   <string name="confirm">Confirm</string>
+  <string name="cross">X</string>
+    <string name="computer">Computer</string>
+  <string name="waiting">Waiting...</string>
+  <string name="status_started">STARTED</string>
+  <string name="status_waiting">WAITING</string>
+  <string name="undecided">UNDECIDED</string>
+  <string name="status_finished">FINISHED</string>
+    <string name="draw">Draw</string>
+  <string name="game_over">Game Over</string>
+    <string name="cell">Cell</string>
 </resources>
