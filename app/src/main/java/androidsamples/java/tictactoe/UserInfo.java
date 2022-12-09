@@ -4,6 +4,11 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+
+/**
+ * User Object class for to be stored in the firebase realtime database;
+ * with constructors, getters and setters
+ */
 @IgnoreExtraProperties
 public class UserInfo {
     private String userId;

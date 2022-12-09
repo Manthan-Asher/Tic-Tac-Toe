@@ -26,6 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The Adapter class for the RecyclerView. This is used to link non compatible types and
+ * also to show them on the view (UI).
+ */
+
 public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.ViewHolder> {
   private static final String TAG = "OpenGamesAdapter";
   private List<GameInfo> openGames;
@@ -35,6 +40,11 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
   private Context mContext;
   private String matchUUID;
 
+  /**
+   * Constructor. Initializes, navController and database reference
+   * @param view
+   * @param context
+   */
   public OpenGamesAdapter(View view,Context context) {
     // FIXME if needed
     mNavController = Navigation.findNavController(view);
@@ -44,6 +54,12 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
     mContext = context;
   }
 
+  /**
+   * The overriden onCreateViewHolder method. It inflates the itemview and returns the ViewHolder object.
+   * @param parent The parent ViewGroup
+   * @param viewType the viewType of the view
+   * @return an ViewHolder with the view
+   */
   @NonNull
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -52,6 +68,13 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
     return new ViewHolder(view);
   }
 
+
+  /**
+   * Overrides the onBindViewHolder method where we get the current open game
+   * and binds it to the holder. I also fetch the user email from database to display which user created the game
+   * @param holder The holder to bind to
+   * @param position The position of the entry in the list.
+   */
   @Override
   public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
     // TODO bind the item at the given position to the holder
@@ -80,22 +103,40 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
     }
   }
 
+  /**
+   * Get the number of items in openGames.
+   * @return
+   */
   @Override
   public int getItemCount() {
     return (openGames == null) ? 0 : openGames.size();
   }
 
+
+  /**
+   * Set the openGames list to a new list and notifies that the DataSet has Changed.
+   * @param openGames List of JournalEntry.
+   */
   public void setOpen(List<GameInfo> openGames){
     this.openGames = openGames;
     Log.d(TAG, "openGames: " + openGames.size());
     notifyDataSetChanged();
   }
 
+
+  /**
+   * A Holder class for the RecyclerView. It is used to link the adapter and the
+   * Recycler view to dynamically update UI.
+   */
   public class ViewHolder extends RecyclerView.ViewHolder {
     public final View mView;
     public final TextView mIdView;
     public final TextView mContentView;
 
+    /**
+     * Constructor to fetch widgets by id and set on click listener
+     * @param view
+     */
     public ViewHolder(View view) {
       super(view);
       mView = view;
@@ -105,6 +146,12 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
       mView.setOnClickListener(this::launchGameFragment);
     }
 
+
+    /**
+     * To launch the particular game fragment
+     * We pass the game type and match Id as safe args
+     * @param v The view on which we do the navigation
+     */
     private void launchGameFragment(View v) {
         Log.d(TAG, "launching the game fragment");
         FirebaseUser currentUser = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser());

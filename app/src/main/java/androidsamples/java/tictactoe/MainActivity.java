@@ -21,6 +21,10 @@ public class MainActivity extends AppCompatActivity {
 
   private static final String TAG = "MainActivity";
 
+  /**
+   * activity lifecycle method, where set the content view and initialising toolbar
+   * @param savedInstanceState
+   */
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -30,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
   }
 
+  /**
+   * Runs when logout is clicked in menu bar
+   * @param item
+   * @return
+   */
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.menu_logout) {
@@ -38,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
       FirebaseAuth.getInstance().signOut();
       NavController mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
       mNavController.navigate(R.id.loginFragment);
-      return true;
     }
     return super.onOptionsItemSelected(item);
   }
@@ -48,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
    *  this is to accommodate for the fact that the stack is not cleared when navigating to the login or dashboard,
    *  so pressing back button leads to confusing behaviour (e.g. pressing back from login leads back to game)
    */
-
   @Override
   public void onBackPressed() {
     Fragment navHostFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);

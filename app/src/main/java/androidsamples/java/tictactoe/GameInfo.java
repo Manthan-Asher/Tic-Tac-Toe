@@ -2,10 +2,17 @@ package androidsamples.java.tictactoe;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Game Object class to be stored in the Firebase realtime database
+ * with constructors, getters and setters
+ */
+@IgnoreExtraProperties
 public class GameInfo {
     private String uuid;
     private boolean open;

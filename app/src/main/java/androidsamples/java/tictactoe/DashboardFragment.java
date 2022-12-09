@@ -32,6 +32,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment class for the dashboard in game. Handles recycler view, displays user email,wins losses
+ * and lets a person join a game.
+ */
 public class DashboardFragment extends Fragment {
 
   private static final String TAG = "DashboardFragment";
@@ -47,6 +51,10 @@ public class DashboardFragment extends Fragment {
   public DashboardFragment() {
   }
 
+  /**
+   * Activity lifecycle method where we initialze firebase auth instance
+   * @param savedInstanceState
+   */
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -56,6 +64,13 @@ public class DashboardFragment extends Fragment {
     mAuth = FirebaseAuth.getInstance();
   }
 
+  /**
+   * On Create View, inflates the layout view
+   * @param inflater
+   * @param container
+   * @param savedInstanceState
+   * @return
+   */
   @Override
   public View onCreateView(LayoutInflater inflater,
                            ViewGroup container,
@@ -63,6 +78,13 @@ public class DashboardFragment extends Fragment {
     return inflater.inflate(R.layout.fragment_dashboard, container, false);
   }
 
+  /**
+   * Overrides the onViewCreated method of Fragment class. It checks if a user is logged in then fetches data from database and updates UI
+   * and if not,takes them back to login fragment. It then gets the database reference. We add the recycler view here and set its adapter.
+   * We also set the logic for floating action button and when a user presses button to create single or two player game.
+   * @param view
+   * @param savedInstanceState
+   */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
@@ -122,6 +144,10 @@ public class DashboardFragment extends Fragment {
     });
   }
 
+  /**
+   * calls user reference and attaches a listener to the database and fetches wins,losses to update on dashboard.
+   * @param view, currentUser
+   */
   private void valEventListener(@NonNull View view, FirebaseUser currentUser) {
     mRef.child("User_Info").child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
       @Override
@@ -138,6 +164,9 @@ public class DashboardFragment extends Fragment {
     });
   }
 
+  /**
+   * Gets Open matches to display in the recycler view using a listener to game ref in database
+    */
   private void getOpenMatches(){
     List<GameInfo> openGames = new ArrayList<>();
     mRef.child("Game_Info").addValueEventListener(new ValueEventListener() {
@@ -173,11 +202,21 @@ public class DashboardFragment extends Fragment {
     });
   }
 
+  /**
+   * helper function to update UI
+   * @param userInfo
+   * @param v
+   */
   private void updateUI(UserInfo userInfo,@NonNull View v){
     TextView score = v.findViewById(R.id.txt_score);
     score.setText("Wins: " + userInfo.getWins() + ", Losses: " + userInfo.getLosses());
   }
 
+  /**
+   * Override the onCreateOptionsMenu callback to inflate the menu bar icons
+   * @param menu The menu on which the options is called
+   * @param inflater The inflater that inflates the share_delete_menu resource
+   */
   @Override
   public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);

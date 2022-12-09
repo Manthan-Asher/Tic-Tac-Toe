@@ -8,6 +8,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -34,6 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Game fragment class with main logic for playing game.
+ */
 public class GameFragment extends Fragment {
   private static final String TAG = "GameFragment";
   private static final int GRID_SIZE = 9;
@@ -49,8 +54,12 @@ public class GameFragment extends Fragment {
   private boolean threadNotComplete;
   private TextView gamePlayer1,gamePlayer2;
   private Integer activeColour,inactiveColour;
-  private boolean back;
 
+  /**
+   * On create lifecycle method. All fields and references are initialized. We fetch arguments via safe args in bundles
+   * Initializes the game object depending one player, new 2 player,joining 2 player game. Also add the on back pressed callback
+   * @param savedInstanceState
+   */
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -59,7 +68,6 @@ public class GameFragment extends Fragment {
     currentUser = FirebaseAuth.getInstance().getCurrentUser();
     gameRef = mDatabase.getReference("Game_Info");
     userRef = mDatabase.getReference("User_Info");
-    back =  false;
 
     // active and inactive are initialized this way because of the way the theme works
     // copied from stackoverflow {link @https://stackoverflow.com/questions/35417329/gettheme-resolveattribute-alternative-on-pre-lollipop}
@@ -82,16 +90,17 @@ public class GameFragment extends Fragment {
 
     // fetches matchUUID
     matchUUID = args.getGameID();
+    mLogic = new ViewModelProvider(requireActivity()).get(GameLogic.class);
 
     if(matchUUID.isEmpty()){
       GameInfo game = makeGameObject();
       Log.d(TAG, "Game created: " + game.toString());
-      mLogic = new GameLogic(game);
+      mLogic.initialise2(game);
       mLogic.turnToGo = 1;
       gameRef.child(game.getUUID()).setValue(game);
       Log.d(TAG, "Player1: " + currentUser.getEmail() + " has created a " + args.getGameType() + " game : " + matchUUID);
     }else{
-      mLogic = new GameLogic(matchUUID,singlePlayer);
+      mLogic.initialise1(matchUUID,singlePlayer);
       mLogic.turnToGo = 2;
       setTwoPlayerMatch(matchUUID);
       Log.d(TAG, "Player2: " + currentUser.getEmail() + " has joined game : " + matchUUID);
@@ -103,24 +112,17 @@ public class GameFragment extends Fragment {
       @Override
       public void handleOnBackPressed() {
         Log.d(TAG, "Back pressed");
-
         // TODO show dialog only when the game is still in progress
-        AlertDialog dialog = new AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.confirm)
-            .setMessage(R.string.forfeit_game_dialog_message)
-            .setPositiveButton(R.string.yes, (d, which) -> {
-              // TODO update loss count
-//              endGameAsForfeit();
-              mNavController.popBackStack();
-            })
-            .setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
-            .create();
-        dialog.show();
+        handleBackPressedOrLogout(false);
       }
     };
     requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
   }
 
+  /**
+   * Initialise the game Info object and send it back
+   * @return
+   */
   @NonNull
   private GameInfo makeGameObject() {
     boolean open = !singlePlayer;
@@ -132,6 +134,13 @@ public class GameFragment extends Fragment {
     return new GameInfo(open, singlePlayer, player1,player2,status,winner,turn);
   }
 
+  /**
+   * On create view lifecycle method. We just inflate the ui
+   * @param inflater
+   * @param container
+   * @param savedInstanceState
+   * @return
+   */
   @Override
   public View onCreateView(LayoutInflater inflater,
                            ViewGroup container,
@@ -139,6 +148,12 @@ public class GameFragment extends Fragment {
     return inflater.inflate(R.layout.fragment_game, container, false);
   }
 
+  /**
+   * On View created lifecycle method. Extract the widgets,
+   * set on click listeners on buttons and also set database listeners.
+   * @param view
+   * @param savedInstanceState
+   */
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
@@ -171,7 +186,6 @@ public class GameFragment extends Fragment {
      if(!singlePlayer && mLogic.turnToGo == 1){
        notifyPlayer1ThatPlayer2Joined();
      }
-    //calling updateUI once
 
     // listener which listens to the game changes in database
     listenerWhilePlayingGame();
@@ -180,6 +194,11 @@ public class GameFragment extends Fragment {
     listenerForStatus();
   }
 
+  /**
+   * Single value event listener for player 2 when they join an open game to update the game model fields
+   * and updates the database as well
+   * @param matchUUID
+   */
   private void setTwoPlayerMatch(String matchUUID){
     Log.d(TAG, "setTwoPlayerMatch is called");
     Log.d(TAG, "matchUUID is " + matchUUID);
@@ -208,6 +227,9 @@ public class GameFragment extends Fragment {
     );
   }
 
+  /**
+   * Listener to notify player1 that player2 has joined and update fields and UI
+   */
   private void notifyPlayer1ThatPlayer2Joined() {
     gameRef.child(mLogic.matchUUID).child("player2").addValueEventListener(new ValueEventListener() {
 
@@ -237,6 +259,9 @@ public class GameFragment extends Fragment {
     });
   }
 
+  /**
+   * Listens for changes in tictactoe board and turn value while playing the game. Also updates the UI
+   */
   private void listenerWhilePlayingGame(){
     gameRef.child(mLogic.matchUUID).addValueEventListener(new ValueEventListener() {
       /**
@@ -266,6 +291,10 @@ public class GameFragment extends Fragment {
     });
   }
 
+  /**
+   * Listens for status update in the database, mainly to check when game ends. Depending on the result and winner,
+   * It will display the game over dialog and update wins,losses
+   */
   private void listenerForStatus() {
     gameRef.child(mLogic.matchUUID).addValueEventListener(new ValueEventListener() {
       /**
@@ -314,12 +343,22 @@ public class GameFragment extends Fragment {
     });
   }
 
+  /**
+   * Helper function to update fields when player 2 joins
+   * @param player2Id player2 uuid
+   */
   private void updateFieldsOnPlayerJoin(String player2Id) {
     mLogic.status = getString(R.string.status_started);
     mLogic.open = false;
     mLogic.player2 = player2Id;
   }
 
+  /**
+   * Handles the case when a player tries to make a move. Waits for other player to join and checks the turn and
+   * validity of move. Then checks the result of game and takes an action accordingly.
+   * If it is a single player, the computer move is also made here.
+   * @param index where move is made in board
+   */
   private void makeMove(Integer index){
     if(mLogic.status.equals(getString(R.string.status_waiting))){
       Toast.makeText(requireContext(), "Waiting for other player to join..", Toast.LENGTH_SHORT).show();
@@ -338,13 +377,11 @@ public class GameFragment extends Fragment {
       if(mLogic.checkResult() == 1){
         Log.d(TAG, "Player 1 won");
         updateDbEntryOnGameEnd("Player1");
-//        showDialogAndClose("Congratulations!",mLogic.checkResult());
       }
 
       if(mLogic.checkResult() == 3){
         Log.d(TAG, "Draw");
         updateDbEntryOnGameEnd(getString(R.string.draw));
-//        showDialogAndClose("It's a draw",mLogic.checkResult());
       }
 
       if(singlePlayer && mLogic.checkResult() == 0){
@@ -352,24 +389,24 @@ public class GameFragment extends Fragment {
         mLogic.turn = ((mLogic.turn)%2) +1; // change turn
         gameRef.child(mLogic.matchUUID).child("tictactoe").setValue(mLogic.tictactoe);
         gameRef.child(mLogic.matchUUID).child("turn").setValue(mLogic.turn);
-        updateUI();
         if(mLogic.checkResult() == 2){
           Log.d(TAG, "Computer Won");
           updateDbEntryOnGameEnd(getString(R.string.computer));
-//          showDialogAndClose("Sorry!",mLogic.checkResult());
         }
       }else if(!singlePlayer && mLogic.checkResult() == 2){
         Log.d(TAG, "Player 2 won");
         updateDbEntryOnGameEnd("Player2");
-//        showDialogAndClose("Sorry!",mLogic.checkResult());
       }
     }else{
       Toast.makeText(requireContext(), "Please select a different cell", Toast.LENGTH_SHORT).show();
       return;
     }
-
   }
 
+  /**
+   * When game ends we update the entries of game (winner and status) in database
+   * @param winner
+   */
   private void updateDbEntryOnGameEnd(String winner) {
     mLogic.status = getString(R.string.status_finished);
     mLogic.winner = winner;
@@ -377,6 +414,10 @@ public class GameFragment extends Fragment {
     gameRef.child(mLogic.matchUUID).setValue(newObj);
   }
 
+  /**
+   * Generic update UI method to update tictactoe board every time a move is made
+   * and also displays player joining status
+   */
   private void updateUI(){
     for(int i=0;i<GRID_SIZE;i++){
       mButtons[i].setText(mLogic.tictactoe.get(i));
@@ -399,6 +440,10 @@ public class GameFragment extends Fragment {
     }
   }
 
+  /**
+   * Displays congratulations, draw or sorry message and navigates user back to dashboard
+   * @param messageToDisplay
+   */
   private void showDialogAndClose(String messageToDisplay) {
     AlertDialog dialog = new AlertDialog.Builder(requireActivity())
             .setCancelable(false)
@@ -406,20 +451,18 @@ public class GameFragment extends Fragment {
             .setMessage(messageToDisplay)
             .setPositiveButton("OK", (d, which) -> {
               // TODO update loss count
-              //get wins and losses for player1
-//              addSingleEventListener(mLogic.player1,result);
-//              Log.d(TAG, "Called single event listener");
-              // if not single player and game is finished, then fetch for single player
-//              if(!singlePlayer && !mLogic.player2.equals(getString(R.string.waiting))) addSingleEventListener(mLogic.player2,result);
-//              Log.d(TAG, "playerWins" + playerWins.toString());
-//              Log.d(TAG, "playerLosses" + playerLosses.toString());
-              if(!back) mNavController.navigate(R.id.dashboardFragment);
+              // doing that already
+              mNavController.navigate(R.id.dashboardFragment);
             })
             .create();
     dialog.show();
   }
 
-
+  /**
+   * Helper function to update win and loss count depending on player and result
+   * @param playerId player uuid
+   * @param result result of game
+   */
   private void updateWinsAndLosses(String playerId,int result) {
       if(result == mLogic.turnToGo) {
         userRef.child(playerId).child("wins").setValue(playerWins+1);
@@ -428,6 +471,11 @@ public class GameFragment extends Fragment {
       }
   }
 
+  /**
+   * This is a single event listener to fetch wins and losses after game has finished to update in database
+   * @param playerId player uuid
+   * @param result result of game
+   */
   private void addSingleEventListener(String playerId,int result) {
     Log.d(TAG, "addSingleEventListener is called");
     Log.d(TAG , "playerId: " + playerId);
@@ -451,12 +499,53 @@ public class GameFragment extends Fragment {
     );
   }
 
-//  used this function for onBackPressed but some issues
+  /**
+   * It handles the case of back button pressed or logout pressed depending on the status of the game.
+   * If game is started, the player will lose
+   * If player is waiting to join, player will be taken back on pressing back button, without losing
+   * If game is already finished, nothing happens
+   * @param logout true if logout is pressed, false otherwise
+   */
+
+  private void handleBackPressedOrLogout(boolean logout) {
+    if(mLogic.status.equals(getString(R.string.status_started))) {
+      if(!logout) showForfeitDialog();
+      else endGameAsForfeit();
+    }else if(mLogic.status.equals(getString(R.string.status_finished))) {
+      Log.d(TAG, "Match is over, no need to show dialog");
+      if(!logout) mNavController.navigate(R.id.dashboardFragment);
+    }else if(mLogic.status.equals(getString(R.string.status_waiting))){
+      Log.d(TAG, "Other player did not join, leaving..");
+      mLogic.open = false;
+      gameRef.child(mLogic.matchUUID).child("open").setValue(false);
+      if(!logout) mNavController.navigate(R.id.dashboardFragment);
+    }
+  }
+
+  /**
+   * gives a warning message to user to see if they want to forfeit the game. If clicked yes, they lose
+   * and wins,losses are updated
+   */
+
+  private void showForfeitDialog() {
+    AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.confirm)
+            .setMessage(R.string.forfeit_game_dialog_message)
+            .setPositiveButton(R.string.yes, (d, which) -> {
+              // TODO update loss count
+              endGameAsForfeit();
+            })
+            .setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
+            .create();
+    dialog.show();
+  }
+
+
+  /**
+   * Used to end game when forfeited and update winner
+   */
   private void endGameAsForfeit(){
-    back = true;
-    if(mLogic.status.equals(getString(R.string.status_waiting))){
-      updateDbEntryOnGameEnd("Draw");
-    }else if(mLogic.turnToGo == 1){
+    if(mLogic.turnToGo == 1){
       updateDbEntryOnGameEnd("Player2");
     }else updateDbEntryOnGameEnd("Player1");
   }
@@ -466,5 +555,21 @@ public class GameFragment extends Fragment {
     super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.menu_logout, menu);
     // this action menu is handled in MainActivity
+  }
+
+  /**
+   * Runs when logout is clicked in menu bar
+   * @param item
+   * @return
+   */
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.menu_logout) {
+      Log.d(TAG, "logout clicked in game fragment");
+      // TODO handle log out
+      handleBackPressedOrLogout(true);
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
   }
 }

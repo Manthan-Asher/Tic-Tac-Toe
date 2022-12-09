@@ -26,22 +26,37 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
+/**
+ * Fragment to handle the sign up and log in logic.
+ */
 public class LoginFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private NavController mNavController;
     private static final String TAG = "LoginFragment";
 
+    /**
+     * On create lifecycle method. initialises firebase auth instance
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
 
         // TODO if a user is logged in, go to Dashboard
-        //implemented in onViewCreated
+        //initially implemented in login fragment but commented.
     }
 
-
+    /**
+     * On Create View, extracts the widgets and sets onclick listeners. Sign in logic also implemented.
+     * If a user already exists, they will be logged in and navigated to dashboard automatically.
+     * If a user does not exists, it will first check that via the exception and then sign up the new user in database.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -80,6 +95,12 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Function is called for signing up a new user. Email must be valid and password must be at least 6 characters.
+     * User is navigated to dashboard after successful signup process
+     * @param email
+     * @param password
+     */
     private void signUp(String email, String password){
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
@@ -105,17 +126,22 @@ public class LoginFragment extends Fragment {
                 });
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        mNavController = Navigation.findNavController(view);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            NavDirections loginAction = LoginFragmentDirections.actionLoginSuccessful();
-            mNavController.navigate(loginAction);
-        }
-    }
+    /**
+     * On view created lifecycle method. It checks if user is logged in already and moves to dashboard.
+     * Commented out because it is redundant. Home fragment is dashboard. If user is logged in, they will already be there
+     * and if not they will be navigated to the login page
+     */
+//    @Override
+//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+//        super.onViewCreated(view, savedInstanceState);
+//
+//        mNavController = Navigation.findNavController(view);
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        if(currentUser != null){
+//            NavDirections loginAction = LoginFragmentDirections.actionLoginSuccessful();
+//            mNavController.navigate(loginAction);
+//        }
+//    }
 
     // No options menu in login fragment.
 }

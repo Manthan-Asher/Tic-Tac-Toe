@@ -39,19 +39,18 @@ should log the user out and show the LoginFragment. This click is handled in the
 
 - **Known Bugs**
 
-  On back pressed for forfeit results does not update Wins and Losses. I tried to implement that feature but the app was crashing for some reason for that person, althought the wins and losses were getting updated in database and for other player. I felt crashing might be a bigger issue hence I commented the code that handled that. The app crashed with a "Fragment not attached to context" issue. I tried finding fixes for it but it didn't work work.
-  
+  The recycler view UI can be clumsy if a lot many open games are present.
   Although there are no other known bugs in the application, I could not resolve some accessibility scanner issues of the Menu Bar. Below are some screenshots of the application.
 
-  ![sdpd-b.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpd-b.jpeg)
+  ![sdpd-b.jpeg](Images/sdpd-b.jpeg)
 
-![sdpd=2.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpd2.jpeg)
+![sdpd=2.jpeg](Images/sdpd2.jpeg)
 
-![sdpd-a.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpd-a.jpeg)
+![sdpd-a.jpeg](Images/sdpd-a.jpeg)
 
-![sdpd=e.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpde.jpeg)
+![sdpd=e.jpeg](Images/sdpde.jpeg)
 
-![sdpd=c.jpeg](A5-%20Tic%20Tac%20Toe%20e3ac2939b7a64dbe9de7eb382a615d01/sdpdc.jpeg)
+![sdpd=c.jpeg](Images/sdpdc.jpeg)
 
 ## Tasks Completion Description
 

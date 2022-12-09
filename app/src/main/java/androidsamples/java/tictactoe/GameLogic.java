@@ -1,8 +1,16 @@
 package androidsamples.java.tictactoe;
 
+import androidx.lifecycle.ViewModel;
+
 import java.util.List;
 
-public class GameLogic {
+/**
+ * Model class for Game Objects. Holds an instance of game object.
+ * The current status of the match that we receive from the database, we're storing that status here.
+ * It holds one additional field "turnToGo" which essentially tells is the current player player1 or 2
+ * and decides when to make a move in 2 player. It also holds the logic for single player game.
+ */
+public class GameLogic extends ViewModel{
     private static final String TAG = "GameLogic";
 
     public boolean singlePlayer;
@@ -16,12 +24,18 @@ public class GameLogic {
     public Integer turn;
     public Integer turnToGo;
 
-    GameLogic(String matchUUID,boolean singlePlayer){
+    /**
+     * Since it is a view model, had to define an initialisation function instead of constructor
+     * @param matchUUID
+     * @param singlePlayer
+     */
+    public void initialise1(String matchUUID,boolean singlePlayer){
         this.matchUUID = matchUUID;
         this.singlePlayer = singlePlayer;
     }
 
-    GameLogic(GameInfo game) {
+
+    public void initialise2(GameInfo game) {
         open = game.getOpen();
         singlePlayer = game.getSinglePlayer();
         winner = game.getWinner();
@@ -33,6 +47,14 @@ public class GameLogic {
         tictactoe = game.getTictactoe();
     }
 
+    /**
+     * This function is called when the current user makes a move(player1 in case of single player).
+     * It checks if the current cell is empty and assigns the symbol to that cell.
+     * Symbol is always X if player1 and O for player2.
+     * @param index in list where move is to be made
+     * @param player index
+     * @return true if valid move, false otherwise
+     */
     public boolean play(Integer index,Integer player){
         String symbol = player == 1 ? "X" : "O";
 
@@ -43,6 +65,11 @@ public class GameLogic {
         return false;
     }
 
+    /**
+     * Checks if the game is concluded after every move.
+     *
+     * @return 0 if game not finished yet, 1 if player1 won, 2 if player2 won, 3 if draw
+     */
     public int checkResult(){
         String winChar = "";
         boolean isFilled = true;
@@ -65,6 +92,10 @@ public class GameLogic {
         return (winChar.equals("X")) ? 1 : 2;
     }
 
+    /**
+     * This functions basically fetches computer move in single player game. The logic is to find first empty cell and
+     * fill it.
+     */
     public void getComputerMove(){
         for(int i=0;i<9;i++){
             if(tictactoe.get(i).equals("")){
@@ -72,5 +103,9 @@ public class GameLogic {
                 return;
             }
         }
+    }
+
+    public void reset(){
+
     }
 }
