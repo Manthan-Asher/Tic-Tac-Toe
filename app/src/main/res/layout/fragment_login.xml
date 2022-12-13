@@ -9,7 +9,8 @@
   <EditText
       android:id="@+id/edit_email"
       android:layout_width="match_parent"
-      android:layout_height="48dp"
+      android:layout_height="wrap_content"
+      android:minHeight="48dp"
       android:layout_margin="@dimen/text_margin"
       android:autofillHints="@string/email"
       android:hint="@string/email"
@@ -24,7 +25,8 @@
   <EditText
       android:id="@+id/edit_password"
       android:layout_width="match_parent"
-      android:layout_height="48dp"
+      android:layout_height="wrap_content"
+      android:minHeight="48dp"
       android:layout_margin="@dimen/text_margin"
       android:autofillHints="Password"
       android:ems="10"

@@ -131,17 +131,17 @@ public class LoginFragment extends Fragment {
      * Commented out because it is redundant. Home fragment is dashboard. If user is logged in, they will already be there
      * and if not they will be navigated to the login page
      */
-//    @Override
-//    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-//        super.onViewCreated(view, savedInstanceState);
-//
-//        mNavController = Navigation.findNavController(view);
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser != null){
-//            NavDirections loginAction = LoginFragmentDirections.actionLoginSuccessful();
-//            mNavController.navigate(loginAction);
-//        }
-//    }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mNavController = Navigation.findNavController(view);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            NavDirections loginAction = LoginFragmentDirections.actionLoginSuccessful();
+            mNavController.navigate(loginAction);
+        }
+    }
 
     // No options menu in login fragment.
 }
